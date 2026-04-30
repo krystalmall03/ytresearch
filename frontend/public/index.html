@@ -6,309 +6,133 @@
 <title>YT Research</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0b0b10;
-    --surface: #131319;
-    --surface2: #1b1b24;
-    --border: #26263a;
-    --accent: #6c63ff;
-    --accent2: #ff6b6b;
-    --accent3: #34d399;
-    --text: #e4e4ec;
-    --muted: #70708a;
-    --red: #ff4757;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 14px;
-    line-height: 1.6;
-    min-height: 100vh;
-  }
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image:
-      linear-gradient(rgba(108,99,255,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(108,99,255,0.025) 1px, transparent 1px);
-    background-size: 48px 48px;
-    pointer-events: none;
-  }
-  .container { max-width: 1060px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
-
-  /* Header */
-  header { padding: 24px 0; border-bottom: 1px solid var(--border); margin-bottom: 40px; }
-  .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-  .logo { display: flex; align-items: center; gap: 10px; }
-  .logo-mark {
-    width: 32px; height: 32px; background: var(--accent); border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 13px; color: #fff;
-  }
-  .logo-text { font-weight: 700; font-size: 16px; letter-spacing: -0.01em; }
-  .logo-text span { color: var(--accent); }
-  .tip-btn {
-    display: flex; align-items: center; gap: 6px;
-    background: transparent; border: 1px solid var(--border); color: var(--muted);
-    padding: 7px 14px; border-radius: 8px; font-family: inherit; font-size: 12px;
-    cursor: pointer; text-decoration: none; transition: all 0.2s;
-  }
-  .tip-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  /* Hero */
-  .hero { text-align: center; margin-bottom: 36px; }
-  .hero-tag {
-    display: inline-block; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--accent); border: 1px solid rgba(108,99,255,0.3);
-    padding: 4px 12px; border-radius: 100px; margin-bottom: 16px;
-  }
-  .hero h1 { font-size: clamp(28px, 5vw, 44px); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 10px; }
-  .hero h1 em { font-style: normal; color: var(--accent); }
-  .hero p { color: var(--muted); font-size: 14px; max-width: 460px; margin: 0 auto; }
-
-  /* Mode Toggle */
-  .mode-toggle {
-    display: flex; justify-content: center; gap: 0; margin-bottom: 20px;
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    padding: 4px; max-width: 320px; margin-left: auto; margin-right: auto;
-  }
-  .mode-btn {
-    flex: 1; padding: 9px 16px; border: none; background: transparent;
-    color: var(--muted); font-family: inherit; font-size: 13px; font-weight: 500;
-    cursor: pointer; border-radius: 7px; transition: all 0.2s;
-  }
-  .mode-btn.active { background: var(--accent); color: #fff; }
-  .mode-btn:not(.active):hover { color: var(--text); }
-
-  /* Search */
-  .search-wrap { max-width: 640px; margin: 0 auto 48px; }
-  .search-box {
-    display: flex; background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; overflow: hidden; transition: border-color 0.2s;
-  }
-  .search-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(108,99,255,0.1); }
-  .search-icon { padding: 0 14px; display: flex; align-items: center; color: var(--muted); }
-  #urlInput {
-    flex: 1; background: transparent; border: none; outline: none; padding: 14px 8px;
-    color: var(--text); font-family: 'IBM Plex Mono', monospace; font-size: 13px;
-  }
-  #urlInput::placeholder { color: var(--muted); }
-  #analyzeBtn {
-    background: var(--accent); color: #fff; border: none; padding: 0 24px;
-    font-family: inherit; font-weight: 600; font-size: 13px; cursor: pointer;
-    transition: background 0.2s; white-space: nowrap;
-  }
-  #analyzeBtn:hover { background: #7c74ff; }
-  #analyzeBtn:disabled { background: var(--border); cursor: not-allowed; }
-  .hint { text-align: center; font-size: 11px; color: var(--muted); margin-top: 8px; }
-
-  /* Loading / Error */
-  #loading { display: none; text-align: center; padding: 48px 0; }
-  .spinner {
-    width: 36px; height: 36px; border: 2px solid var(--border);
-    border-top-color: var(--accent); border-radius: 50%;
-    animation: spin 0.7s linear infinite; margin: 0 auto 12px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  #loading p { color: var(--muted); font-size: 13px; }
-  #error {
-    display: none; background: rgba(255,71,87,0.1); border: 1px solid rgba(255,71,87,0.25);
-    border-radius: 8px; padding: 12px 16px; color: var(--red); font-size: 13px;
-    max-width: 640px; margin: 0 auto 24px;
-  }
-
-  /* Results shared */
-  #channelResults, #videoResults { display: none; }
-
-  .export-bar {
-    display: flex; align-items: center; justify-content: space-between;
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    padding: 14px 20px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
-  }
-  .export-label { font-size: 12px; color: var(--muted); }
-  .export-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-  .export-btn {
-    padding: 7px 16px; border-radius: 7px; font-family: inherit; font-size: 12px; font-weight: 500;
-    cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text); transition: all 0.2s;
-  }
-  .export-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  /* Cards / Stats */
-  .card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 22px; margin-bottom: 20px;
-  }
-  .card-header {
-    display: flex; align-items: flex-start; gap: 18px;
-  }
-  .avatar { width: 72px; height: 72px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; object-fit: cover; }
-  .meta h2 { font-size: 20px; font-weight: 700; margin-bottom: 2px; }
-  .meta .handle { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
-  .tags { display: flex; flex-wrap: wrap; gap: 5px; }
-  .tag {
-    background: var(--surface2); border: 1px solid var(--border); padding: 2px 9px;
-    border-radius: 100px; font-size: 11px; color: var(--muted); text-transform: capitalize;
-  }
-
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
-  .stat-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; padding: 16px; transition: border-color 0.15s;
-  }
-  .stat-card:hover { border-color: rgba(108,99,255,0.4); }
-  .stat-label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
-  .stat-value { font-size: 24px; font-weight: 700; line-height: 1; margin-bottom: 3px; }
-  .stat-sub { font-size: 11px; color: var(--muted); }
-  .stat-card.accent .stat-value { color: var(--accent); }
-  .stat-card.green .stat-value { color: var(--accent3); }
-  .stat-card.red .stat-value { color: var(--accent2); }
-
-  /* Section */
-  .section {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 20px; margin-bottom: 20px;
-  }
-  .section-title {
-    font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 7px;
-  }
-  .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
-
-  /* Revenue */
-  .revenue-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .rev-card { background: var(--surface2); border-radius: 8px; padding: 16px; text-align: center; }
-  .rev-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
-  .rev-value { font-size: 28px; font-weight: 700; color: var(--accent3); }
-  .rev-note { font-size: 11px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
-
-  /* Description */
-  .desc-text { font-size: 13px; color: var(--muted); line-height: 1.7; max-height: 80px; overflow: hidden; transition: max-height 0.3s; }
-  .desc-text.expanded { max-height: 600px; }
-  .desc-toggle { background: none; border: none; color: var(--accent); font-family: inherit; font-size: 12px; cursor: pointer; margin-top: 6px; padding: 0; }
-
-  /* Table */
-  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .data-table th {
-    text-align: left; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
-    color: var(--muted); padding: 0 10px 10px; border-bottom: 1px solid var(--border); font-weight: 500;
-  }
-  .data-table td { padding: 10px; border-bottom: 1px solid rgba(38,38,58,0.5); vertical-align: middle; }
-  .data-table tr:last-child td { border-bottom: none; }
-  .data-table tr:hover td { background: var(--surface2); }
-  .video-title-cell { display: flex; align-items: center; gap: 8px; max-width: 340px; }
-  .video-thumb { width: 44px; height: 25px; border-radius: 3px; object-fit: cover; flex-shrink: 0; background: var(--border); }
-  .video-title-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 260px; }
-  .video-link { color: var(--text); text-decoration: none; }
-  .video-link:hover { color: var(--accent); }
-  .num { font-variant-numeric: tabular-nums; font-family: 'IBM Plex Mono', monospace; font-size: 12px; }
-
-  /* Video-specific: thumbnail hero */
-  .video-hero { position: relative; border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
-  .video-hero img { width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover; }
-  .video-hero .overlay {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    background: linear-gradient(transparent, rgba(0,0,0,0.85));
-    padding: 24px 20px 16px;
-  }
-  .video-hero .overlay h2 { font-size: 18px; font-weight: 700; line-height: 1.3; margin-bottom: 6px; }
-  .video-hero .overlay .vmeta { font-size: 12px; color: rgba(255,255,255,0.65); display: flex; gap: 12px; flex-wrap: wrap; }
-
-  /* Comments */
-  .comment {
-    padding: 12px 0; border-bottom: 1px solid var(--border);
-  }
-  .comment:last-child { border-bottom: none; }
-  .comment-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
-  .comment-author { font-weight: 600; font-size: 12px; }
-  .comment-likes { font-size: 11px; color: var(--muted); }
-  .comment-text { font-size: 13px; color: var(--muted); line-height: 1.5; word-break: break-word; }
-
-  /* Tags cloud */
-  .tags-cloud { display: flex; flex-wrap: wrap; gap: 6px; }
-  .tag-pill {
-    background: var(--surface2); border: 1px solid var(--border);
-    padding: 4px 10px; border-radius: 6px; font-size: 11px; color: var(--muted);
-  }
-
-  /* Footer */
-  footer {
-    text-align: center; padding: 40px 0 28px; color: var(--muted);
-    font-size: 12px; border-top: 1px solid var(--border); margin-top: 48px;
-  }
-  footer a { color: var(--accent); text-decoration: none; }
-  footer a:hover { text-decoration: underline; }
-
-  @media (max-width: 640px) {
-    .card-header { flex-direction: column; }
-    .revenue-split { grid-template-columns: 1fr; }
-    .video-title-cell { max-width: 160px; }
-    .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  }
+  :root { --bg:#0b0b10;--surface:#131319;--surface2:#1b1b24;--border:#26263a;--accent:#6c63ff;--accent2:#ff6b6b;--accent3:#34d399;--text:#e4e4ec;--muted:#70708a;--red:#ff4757; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.6;min-height:100vh}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(108,99,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(108,99,255,0.025) 1px,transparent 1px);background-size:48px 48px;pointer-events:none}
+  .container{max-width:1060px;margin:0 auto;padding:0 20px;position:relative;z-index:1}
+  header{padding:24px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+  .header-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .logo{display:flex;align-items:center;gap:10px}
+  .logo-mark{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff}
+  .logo-text{font-weight:700;font-size:16px}.logo-text span{color:var(--accent)}
+  .tip-btn{display:flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--border);color:var(--muted);padding:7px 14px;border-radius:8px;font-family:inherit;font-size:12px;cursor:pointer;text-decoration:none;transition:all 0.2s}
+  .tip-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .hero{text-align:center;margin-bottom:36px}
+  .hero-tag{display:inline-block;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(108,99,255,0.3);padding:4px 12px;border-radius:100px;margin-bottom:16px}
+  .hero h1{font-size:clamp(28px,5vw,44px);font-weight:700;line-height:1.15;letter-spacing:-0.02em;margin-bottom:10px}
+  .hero h1 em{font-style:normal;color:var(--accent)}
+  .hero p{color:var(--muted);font-size:14px;max-width:460px;margin:0 auto}
+  .mode-toggle{display:flex;justify-content:center;margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;max-width:320px;margin-left:auto;margin-right:auto}
+  .mode-btn{flex:1;padding:9px 16px;border:none;background:transparent;color:var(--muted);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;border-radius:7px;transition:all 0.2s}
+  .mode-btn.active{background:var(--accent);color:#fff}.mode-btn:not(.active):hover{color:var(--text)}
+  .search-wrap{max-width:640px;margin:0 auto 48px}
+  .search-box{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color 0.2s}
+  .search-box:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(108,99,255,0.1)}
+  .search-icon{padding:0 14px;display:flex;align-items:center;color:var(--muted)}
+  #urlInput{flex:1;background:transparent;border:none;outline:none;padding:14px 8px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px}
+  #urlInput::placeholder{color:var(--muted)}
+  #analyzeBtn{background:var(--accent);color:#fff;border:none;padding:0 24px;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;transition:background 0.2s;white-space:nowrap}
+  #analyzeBtn:hover{background:#7c74ff}#analyzeBtn:disabled{background:var(--border);cursor:not-allowed}
+  .hint{text-align:center;font-size:11px;color:var(--muted);margin-top:8px}
+  #loading{display:none;text-align:center;padding:48px 0}
+  .spinner{width:36px;height:36px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 12px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #loading p{color:var(--muted);font-size:13px}
+  #error{display:none;background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.25);border-radius:8px;padding:12px 16px;color:var(--red);font-size:13px;max-width:640px;margin:0 auto 24px}
+  #channelResults,#videoResults{display:none}
+  .export-bar{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 20px;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+  .export-label{font-size:12px;color:var(--muted)}.export-btns{display:flex;gap:8px;flex-wrap:wrap}
+  .export-btn{padding:7px 16px;border-radius:7px;font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text);transition:all 0.2s}
+  .export-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:20px}
+  .card-header{display:flex;align-items:flex-start;gap:18px}
+  .avatar{width:72px;height:72px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;object-fit:cover}
+  .meta h2{font-size:20px;font-weight:700;margin-bottom:2px}.meta .handle{color:var(--muted);font-size:13px;margin-bottom:8px}
+  .tags{display:flex;flex-wrap:wrap;gap:5px}
+  .tag{background:var(--surface2);border:1px solid var(--border);padding:2px 9px;border-radius:100px;font-size:11px;color:var(--muted);text-transform:capitalize}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;transition:border-color 0.15s}
+  .stat-card:hover{border-color:rgba(108,99,255,0.4)}
+  .stat-label{font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:500}
+  .stat-value{font-size:22px;font-weight:700;line-height:1;margin-bottom:3px}.stat-sub{font-size:11px;color:var(--muted)}
+  .stat-card.accent .stat-value{color:var(--accent)}.stat-card.green .stat-value{color:var(--accent3)}.stat-card.red .stat-value{color:var(--accent2)}
+  .section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px}
+  .section-title{font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px}
+  .dot{width:5px;height:5px;border-radius:50%;background:var(--accent)}
+  .revenue-split{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .rev-card{background:var(--surface2);border-radius:8px;padding:16px;text-align:center}
+  .rev-label{font-size:11px;color:var(--muted);margin-bottom:4px}.rev-value{font-size:26px;font-weight:700;color:var(--accent3)}
+  .rev-note{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5}
+  .rpm-badge{display:inline-block;background:var(--surface2);border:1px solid var(--border);padding:4px 10px;border-radius:6px;font-size:12px;color:var(--accent);margin-top:8px;font-weight:500}
+  .desc-text{font-size:13px;color:var(--muted);line-height:1.7;max-height:80px;overflow:hidden;transition:max-height 0.3s;white-space:pre-wrap;word-break:break-word}
+  .desc-text.expanded{max-height:2000px}
+  .desc-toggle{background:none;border:none;color:var(--accent);font-family:inherit;font-size:12px;cursor:pointer;margin-top:6px;padding:0}
+  .data-table{width:100%;border-collapse:collapse;font-size:13px}
+  .data-table th{text-align:left;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);padding:0 10px 10px;border-bottom:1px solid var(--border);font-weight:500}
+  .data-table td{padding:10px;border-bottom:1px solid rgba(38,38,58,0.5);vertical-align:middle}
+  .data-table tr:last-child td{border-bottom:none}.data-table tr:hover td{background:var(--surface2)}
+  .data-table tr.expandable{cursor:pointer}
+  .video-title-cell{display:flex;align-items:center;gap:8px;max-width:300px}
+  .video-thumb{width:44px;height:25px;border-radius:3px;object-fit:cover;flex-shrink:0;background:var(--border)}
+  .video-title-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:230px}
+  .video-link{color:var(--text);text-decoration:none}.video-link:hover{color:var(--accent)}
+  .num{font-variant-numeric:tabular-nums;font-family:'IBM Plex Mono',monospace;font-size:12px}
+  .video-detail-row{display:none}.video-detail-row td{padding:0 10px 14px!important}
+  .video-detail-row.open{display:table-row}
+  .vd-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;font-size:12px;background:var(--surface2);border-radius:8px;padding:14px}
+  .vd-grid .vd-label{color:var(--muted);font-weight:500}.vd-grid .vd-val{color:var(--text)}
+  .vd-desc{margin-top:8px;font-size:12px;color:var(--muted);line-height:1.5;max-height:60px;overflow:hidden;white-space:pre-wrap;word-break:break-word}
+  .vd-tags{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}
+  .vd-tag{background:var(--bg);border:1px solid var(--border);padding:1px 7px;border-radius:4px;font-size:10px;color:var(--muted)}
+  .video-hero{position:relative;border-radius:12px;overflow:hidden;margin-bottom:20px}
+  .video-hero img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover}
+  .video-hero .overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));padding:24px 20px 16px}
+  .video-hero .overlay h2{font-size:18px;font-weight:700;line-height:1.3;margin-bottom:6px}
+  .video-hero .overlay .vmeta{font-size:12px;color:rgba(255,255,255,0.65);display:flex;gap:12px;flex-wrap:wrap}
+  .detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+  .detail-item{display:flex;justify-content:space-between;padding:8px 12px;background:var(--surface2);border-radius:6px;font-size:13px}
+  .detail-item .dl{color:var(--muted)}.detail-item .dv{color:var(--text);font-weight:500;text-align:right}
+  .tags-cloud{display:flex;flex-wrap:wrap;gap:6px}
+  .tag-pill{background:var(--surface2);border:1px solid var(--border);padding:4px 10px;border-radius:6px;font-size:11px;color:var(--muted)}
+  .comment{padding:12px 0;border-bottom:1px solid var(--border)}.comment:last-child{border-bottom:none}
+  .comment-header{display:flex;justify-content:space-between;margin-bottom:4px}
+  .comment-author{font-weight:600;font-size:12px}.comment-likes{font-size:11px;color:var(--muted)}
+  .comment-text{font-size:13px;color:var(--muted);line-height:1.5;word-break:break-word}
+  footer{text-align:center;padding:40px 0 28px;color:var(--muted);font-size:12px;border-top:1px solid var(--border);margin-top:48px}
+  footer a{color:var(--accent);text-decoration:none}footer a:hover{text-decoration:underline}
+  @media(max-width:640px){.card-header{flex-direction:column}.revenue-split{grid-template-columns:1fr}.video-title-cell{max-width:160px}.stats-grid{grid-template-columns:repeat(2,1fr)}.detail-grid{grid-template-columns:1fr}.vd-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="container">
-  <header>
-    <div class="header-inner">
-      <div class="logo">
-        <div class="logo-mark">YT</div>
-        <div class="logo-text">YT<span>Research</span></div>
-      </div>
-      <a href="https://selar.com/showlove/ytresearch" target="_blank" class="tip-btn" id="kofiLink">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg>
-        Help cover server costs
-      </a>
-    </div>
-  </header>
-
+  <header><div class="header-inner">
+    <div class="logo"><div class="logo-mark">YT</div><div class="logo-text">YT<span>Research</span></div></div>
+    <a href="https://ko-fi.com" target="_blank" class="tip-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg> Help cover server costs</a>
+  </div></header>
   <div class="hero">
     <div class="hero-tag">100% Free · No Signup</div>
     <h1>Analyze any <em>YouTube</em><br>channel or video</h1>
-    <p>Get a full research breakdown with stats, engagement, revenue estimates, and exportable reports.</p>
+    <p>Deep research data, niche-based revenue estimates, and exportable reports.</p>
   </div>
-
   <div class="mode-toggle">
     <button class="mode-btn active" id="modeChannel" onclick="setMode('channel')">Channel</button>
     <button class="mode-btn" id="modeVideo" onclick="setMode('video')">Video</button>
   </div>
-
   <div class="search-wrap">
     <div class="search-box">
-      <div class="search-icon">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      </div>
+      <div class="search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
       <input type="text" id="urlInput" placeholder="Paste a YouTube channel or video URL..." />
       <button id="analyzeBtn" onclick="analyze()">Analyze</button>
     </div>
-    <div class="hint" id="hintText">Supports @handles, /channel/ URLs, video URLs, Shorts links</div>
+    <div class="hint">Supports @handles, /channel/ URLs, video URLs, Shorts links, channel IDs</div>
   </div>
-
   <div id="error"></div>
-  <div id="loading"><div class="spinner"></div><p id="loadingText">Fetching data from YouTube...</p></div>
-
-  <!-- ═══ CHANNEL RESULTS ═══ -->
+  <div id="loading"><div class="spinner"></div><p id="loadingText">Fetching data...</p></div>
+  <!-- CHANNEL RESULTS -->
   <div id="channelResults">
-    <div class="export-bar">
-      <span class="export-label">Export report →</span>
-      <div class="export-btns">
-        <button class="export-btn" onclick="exportData('excel')">Excel</button>
-        <button class="export-btn" onclick="exportData('pdf')">PDF</button>
-        <button class="export-btn" onclick="exportData('word')">Word</button>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header">
-        <img id="chAvatar" class="avatar" src="" alt="" onerror="this.style.display='none'">
-        <div class="meta">
-          <h2 id="chName"></h2>
-          <div class="handle" id="chHandle"></div>
-          <div class="tags" id="chTopics"></div>
-        </div>
-      </div>
-    </div>
+    <div class="export-bar"><span class="export-label">Export report →</span><div class="export-btns"><button class="export-btn" onclick="exportData('excel')">Excel</button><button class="export-btn" onclick="exportData('pdf')">PDF</button><button class="export-btn" onclick="exportData('word')">Word</button></div></div>
+    <div class="card"><div class="card-header"><img id="chAvatar" class="avatar" src="" alt="" onerror="this.style.display='none'"><div class="meta"><h2 id="chName"></h2><div class="handle" id="chHandle"></div><div class="tags" id="chTopics"></div></div></div></div>
     <div class="stats-grid">
       <div class="stat-card accent"><div class="stat-label">Subscribers</div><div class="stat-value" id="chSubs"></div><div class="stat-sub" id="chCountry"></div></div>
       <div class="stat-card"><div class="stat-label">Total Views</div><div class="stat-value" id="chViews"></div><div class="stat-sub">all time</div></div>
@@ -317,51 +141,20 @@
       <div class="stat-card"><div class="stat-label">Avg Likes</div><div class="stat-value" id="chAvgLikes"></div><div class="stat-sub">per video</div></div>
       <div class="stat-card red"><div class="stat-label">Avg Comments</div><div class="stat-value" id="chAvgComments"></div><div class="stat-sub">per video</div></div>
     </div>
-    <div class="section">
-      <div class="section-title"><div class="dot"></div>Estimated Lifetime Revenue</div>
-      <div class="revenue-split">
-        <div class="rev-card"><div class="rev-label">Conservative</div><div class="rev-value" id="chRevLow"></div></div>
-        <div class="rev-card"><div class="rev-label">Optimistic</div><div class="rev-value" id="chRevHigh"></div></div>
-      </div>
-      <div class="rev-note">Based on $1.50–$4.00 RPM. Actual revenue depends on niche, audience location, and monetization status.</div>
+    <div class="section"><div class="section-title"><div class="dot"></div>Estimated Lifetime Revenue</div>
+      <div class="revenue-split"><div class="rev-card"><div class="rev-label">Conservative</div><div class="rev-value" id="chRevLow"></div></div><div class="rev-card"><div class="rev-label">Optimistic</div><div class="rev-value" id="chRevHigh"></div></div></div>
+      <div style="text-align:center"><div class="rpm-badge" id="chRpmBadge"></div></div>
+      <div class="rev-note" id="chRevNote"></div>
     </div>
-    <div class="section">
-      <div class="section-title"><div class="dot" style="background:var(--accent2)"></div>Description</div>
-      <div class="desc-text" id="chDesc"></div>
-      <button class="desc-toggle" onclick="toggleDesc('chDesc',this)">Show more</button>
-    </div>
-    <div class="section">
-      <div class="section-title"><div class="dot" style="background:var(--accent3)"></div>Recent Videos</div>
-      <div style="overflow-x:auto">
-        <table class="data-table">
-          <thead><tr><th>Video</th><th>Date</th><th>Views</th><th>Likes</th><th>Comments</th><th>Duration</th></tr></thead>
-          <tbody id="chVideosList"></tbody>
-        </table>
-      </div>
+    <div class="section"><div class="section-title"><div class="dot" style="background:var(--accent2)"></div>Description</div><div class="desc-text" id="chDesc"></div><button class="desc-toggle" onclick="toggleDesc('chDesc',this)">Show more</button></div>
+    <div class="section"><div class="section-title"><div class="dot" style="background:var(--accent3)"></div>Recent Videos <span style="font-weight:400;text-transform:none;font-size:11px;margin-left:4px">(click row to expand)</span></div>
+      <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Video</th><th>Date</th><th>Category</th><th>Views</th><th>Likes</th><th>Eng.</th><th>Dur.</th></tr></thead><tbody id="chVideosList"></tbody></table></div>
     </div>
   </div>
-
-  <!-- ═══ VIDEO RESULTS ═══ -->
+  <!-- VIDEO RESULTS -->
   <div id="videoResults">
-    <div class="export-bar">
-      <span class="export-label">Export report →</span>
-      <div class="export-btns">
-        <button class="export-btn" onclick="exportData('excel')">Excel</button>
-        <button class="export-btn" onclick="exportData('pdf')">PDF</button>
-        <button class="export-btn" onclick="exportData('word')">Word</button>
-      </div>
-    </div>
-    <div class="video-hero">
-      <img id="vidThumb" src="" alt="">
-      <div class="overlay">
-        <h2 id="vidTitle"></h2>
-        <div class="vmeta">
-          <span id="vidChannel"></span>
-          <span id="vidDate"></span>
-          <span id="vidDuration"></span>
-        </div>
-      </div>
-    </div>
+    <div class="export-bar"><span class="export-label">Export report →</span><div class="export-btns"><button class="export-btn" onclick="exportData('excel')">Excel</button><button class="export-btn" onclick="exportData('pdf')">PDF</button><button class="export-btn" onclick="exportData('word')">Word</button></div></div>
+    <div class="video-hero"><img id="vidThumb" src="" alt=""><div class="overlay"><h2 id="vidTitle"></h2><div class="vmeta"><span id="vidChannel"></span><span id="vidDate"></span><span id="vidDuration"></span><span id="vidCategory"></span></div></div></div>
     <div class="stats-grid">
       <div class="stat-card accent"><div class="stat-label">Views</div><div class="stat-value" id="vidViews"></div></div>
       <div class="stat-card green"><div class="stat-label">Likes</div><div class="stat-value" id="vidLikes"></div></div>
@@ -370,263 +163,88 @@
       <div class="stat-card red"><div class="stat-label">Comment Rate</div><div class="stat-value" id="vidCommentRate"></div></div>
       <div class="stat-card green"><div class="stat-label">Engagement</div><div class="stat-value" id="vidEngagement"></div></div>
     </div>
-    <div class="section">
-      <div class="section-title"><div class="dot"></div>Estimated Revenue (This Video)</div>
-      <div class="revenue-split">
-        <div class="rev-card"><div class="rev-label">Conservative</div><div class="rev-value" id="vidRevLow"></div></div>
-        <div class="rev-card"><div class="rev-label">Optimistic</div><div class="rev-value" id="vidRevHigh"></div></div>
-      </div>
-      <div class="rev-note">Based on $1.50–$4.00 RPM. Actual varies by niche and audience geography.</div>
+    <div class="section"><div class="section-title"><div class="dot"></div>Video Metadata</div><div class="detail-grid" id="vidDetails"></div></div>
+    <div class="section"><div class="section-title"><div class="dot"></div>Estimated Revenue (This Video)</div>
+      <div class="revenue-split"><div class="rev-card"><div class="rev-label">Conservative</div><div class="rev-value" id="vidRevLow"></div></div><div class="rev-card"><div class="rev-label">Optimistic</div><div class="rev-value" id="vidRevHigh"></div></div></div>
+      <div style="text-align:center"><div class="rpm-badge" id="vidRpmBadge"></div></div>
+      <div class="rev-note" id="vidRevNote"></div>
     </div>
-    <div class="section">
-      <div class="section-title"><div class="dot" style="background:var(--accent3)"></div>Channel Info</div>
-      <div class="card-header" style="padding:0">
-        <img id="vidChAvatar" class="avatar" src="" alt="" style="width:48px;height:48px" onerror="this.style.display='none'">
-        <div class="meta">
-          <h2 id="vidChName" style="font-size:16px"></h2>
-          <div class="handle"><span id="vidChSubs"></span> subscribers · <span id="vidChViews"></span> total views</div>
-        </div>
-      </div>
+    <div class="section"><div class="section-title"><div class="dot" style="background:var(--accent3)"></div>Channel Info</div>
+      <div class="card-header" style="padding:0"><img id="vidChAvatar" class="avatar" src="" alt="" style="width:48px;height:48px" onerror="this.style.display='none'"><div class="meta"><h2 id="vidChName" style="font-size:16px"></h2><div class="handle"><span id="vidChSubs"></span> subscribers · <span id="vidChViews"></span> total views · <span id="vidChVids"></span> videos</div></div></div>
     </div>
-    <div class="section" id="vidTagsSection" style="display:none">
-      <div class="section-title"><div class="dot" style="background:var(--accent2)"></div>Tags</div>
-      <div class="tags-cloud" id="vidTags"></div>
-    </div>
-    <div class="section">
-      <div class="section-title"><div class="dot" style="background:var(--accent2)"></div>Description</div>
-      <div class="desc-text" id="vidDesc"></div>
-      <button class="desc-toggle" onclick="toggleDesc('vidDesc',this)">Show more</button>
-    </div>
-    <div class="section" id="vidCommentsSection" style="display:none">
-      <div class="section-title"><div class="dot" style="background:var(--accent3)"></div>Top Comments</div>
-      <div id="vidCommentsList"></div>
-    </div>
+    <div class="section" id="vidTagsSection" style="display:none"><div class="section-title"><div class="dot" style="background:var(--accent2)"></div>Tags (<span id="vidTagCount"></span>)</div><div class="tags-cloud" id="vidTags"></div></div>
+    <div class="section"><div class="section-title"><div class="dot" style="background:var(--accent2)"></div>Description</div><div class="desc-text" id="vidDesc"></div><button class="desc-toggle" onclick="toggleDesc('vidDesc',this)">Show more</button></div>
+    <div class="section" id="vidCommentsSection" style="display:none"><div class="section-title"><div class="dot" style="background:var(--accent3)"></div>Top Comments</div><div id="vidCommentsList"></div></div>
   </div>
 </div>
-
-<footer>
-  <p>Free forever. If this tool helped you, <a href="https://selar.com/showlove/ytresearch" target="_blank" id="kofiFooter">consider helping cover server costs</a>.</p>
-</footer>
-
+<footer><p>Free forever. If this tool helped you, <a href="https://ko-fi.com" target="_blank">consider helping cover server costs</a>.</p></footer>
 <script>
-let currentData = null;
-let currentMode = 'channel';
+let currentData=null,currentMode='channel';
+function fmt(n){if(n>=1e9)return(n/1e9).toFixed(2)+'B';if(n>=1e6)return(n/1e6).toFixed(2)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return n.toLocaleString()}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function setMode(m){currentMode=m;document.getElementById('modeChannel').classList.toggle('active',m==='channel');document.getElementById('modeVideo').classList.toggle('active',m==='video');document.getElementById('urlInput').placeholder=m==='channel'?'Paste a YouTube channel URL or @handle...':'Paste a YouTube video or Shorts URL...';document.getElementById('channelResults').style.display='none';document.getElementById('videoResults').style.display='none'}
+async function analyze(){const url=document.getElementById('urlInput').value.trim();if(!url)return;document.getElementById('error').style.display='none';document.getElementById('channelResults').style.display='none';document.getElementById('videoResults').style.display='none';document.getElementById('loading').style.display='block';document.getElementById('loadingText').textContent=currentMode==='channel'?'Analyzing channel...':'Analyzing video...';document.getElementById('analyzeBtn').disabled=true;try{const res=await fetch('/api/analyze/'+currentMode+'?url='+encodeURIComponent(url));const data=await res.json();if(!res.ok)throw new Error(data.error||'Analysis failed');currentData=data;if(data.mode==='video')renderVideo(data);else renderChannel(data)}catch(e){document.getElementById('error').textContent=e.message;document.getElementById('error').style.display='block'}finally{document.getElementById('loading').style.display='none';document.getElementById('analyzeBtn').disabled=false}}
 
-function fmt(n) {
-  if (n>=1e6) return (n/1e6).toFixed(2)+'M';
-  if (n>=1e3) return (n/1e3).toFixed(1)+'K';
-  return n.toLocaleString();
+function renderChannel(d){
+  document.getElementById('chAvatar').src=d.thumbnail||'';
+  document.getElementById('chName').textContent=d.name;
+  document.getElementById('chHandle').textContent=d.handle||d.country;
+  document.getElementById('chTopics').innerHTML=[d.primaryCategory,...d.topics.slice(0,4)].filter(Boolean).map(t=>'<span class="tag">'+t+'</span>').join('');
+  document.getElementById('chSubs').textContent=d.hiddenSubscribers?'Hidden':fmt(d.subscribers);
+  document.getElementById('chCountry').textContent=d.country;
+  document.getElementById('chViews').textContent=fmt(d.totalViews);
+  document.getElementById('chVidCount').textContent=d.videoCount.toLocaleString();
+  document.getElementById('chFreq').textContent=d.uploadFrequency;
+  document.getElementById('chAvgViews').textContent=fmt(d.avgViews);
+  document.getElementById('chAvgLikes').textContent=fmt(d.avgLikes);
+  document.getElementById('chAvgComments').textContent=fmt(d.avgComments);
+  document.getElementById('chRevLow').textContent=d.estimatedRevenueTotal.low;
+  document.getElementById('chRevHigh').textContent=d.estimatedRevenueTotal.high;
+  document.getElementById('chRpmBadge').textContent=d.estimatedRevenueTotal.niche+' niche · $'+d.estimatedRevenueTotal.rpmLow+'-$'+d.estimatedRevenueTotal.rpmHigh+' RPM';
+  document.getElementById('chRevNote').textContent=d.estimatedRevenueTotal.note;
+  document.getElementById('chDesc').textContent=d.description||'No description.';
+  var tb=document.getElementById('chVideosList');
+  tb.innerHTML=d.recentVideos.map(function(v,i){return '<tr class="expandable" onclick="toggleVideoDetail('+i+')"><td><div class="video-title-cell">'+(v.thumbnail?'<img class="video-thumb" src="'+v.thumbnail+'" loading="lazy" alt="">':'')+'<a href="'+v.url+'" target="_blank" class="video-link video-title-text" title="'+esc(v.title)+'" onclick="event.stopPropagation()">'+esc(v.title)+'</a></div></td><td>'+new Date(v.publishedAt).toLocaleDateString()+'</td><td><span class="tag">'+v.category+'</span></td><td class="num">'+fmt(v.views)+'</td><td class="num">'+fmt(v.likes)+'</td><td class="num">'+v.engagementRate+'</td><td>'+v.duration+'</td></tr><tr class="video-detail-row" id="vdr-'+i+'"><td colspan="7"><div class="vd-grid"><div><span class="vd-label">Like Rate:</span></div><div class="vd-val">'+v.likeRate+'</div><div><span class="vd-label">Comment Rate:</span></div><div class="vd-val">'+v.commentRate+'</div><div><span class="vd-label">Comments:</span></div><div class="vd-val">'+fmt(v.comments)+'</div><div><span class="vd-label">Definition:</span></div><div class="vd-val">'+v.definition+'</div><div><span class="vd-label">Captions:</span></div><div class="vd-val">'+v.caption+'</div><div><span class="vd-label">Language:</span></div><div class="vd-val">'+v.defaultLanguage+'</div><div><span class="vd-label">Licensed:</span></div><div class="vd-val">'+v.licensedContent+'</div><div><span class="vd-label">Category:</span></div><div class="vd-val">'+v.category+'</div></div>'+(v.description?'<div class="vd-desc">'+esc(v.description.slice(0,300))+(v.description.length>300?'...':'')+'</div>':'')+(v.tags.length?'<div class="vd-tags">'+v.tags.slice(0,12).map(function(t){return'<span class="vd-tag">'+esc(t)+'</span>'}).join('')+'</div>':'')+'</td></tr>'}).join('');
+  document.getElementById('channelResults').style.display='block';
+}
+function toggleVideoDetail(i){document.getElementById('vdr-'+i).classList.toggle('open')}
+
+function renderVideo(d){
+  document.getElementById('vidThumb').src=d.thumbnailHigh||d.thumbnail||'';
+  document.getElementById('vidTitle').textContent=d.title;
+  document.getElementById('vidChannel').textContent=d.channel.name;
+  document.getElementById('vidDate').textContent=new Date(d.publishedAt).toLocaleDateString();
+  document.getElementById('vidDuration').textContent=d.duration;
+  document.getElementById('vidCategory').textContent=d.category;
+  document.getElementById('vidViews').textContent=fmt(d.views);
+  document.getElementById('vidLikes').textContent=fmt(d.likes);
+  document.getElementById('vidComments').textContent=fmt(d.commentCount);
+  document.getElementById('vidLikeRate').textContent=d.likeRate;
+  document.getElementById('vidCommentRate').textContent=d.commentRate;
+  document.getElementById('vidEngagement').textContent=d.engagementRate;
+  document.getElementById('vidDetails').innerHTML=[['Category',d.category],['Duration',d.duration],['Definition',d.definition],['Captions',d.caption],['Language',d.defaultLanguage],['Licensed Content',d.licensedContent],['Projection',d.projection],['Published',new Date(d.publishedAt).toLocaleDateString()]].map(function(p){return'<div class="detail-item"><span class="dl">'+p[0]+'</span><span class="dv">'+p[1]+'</span></div>'}).join('');
+  document.getElementById('vidRevLow').textContent=d.estimatedRevenue.low;
+  document.getElementById('vidRevHigh').textContent=d.estimatedRevenue.high;
+  document.getElementById('vidRpmBadge').textContent=d.estimatedRevenue.niche+' niche · $'+d.estimatedRevenue.rpmLow+'-$'+d.estimatedRevenue.rpmHigh+' RPM';
+  document.getElementById('vidRevNote').textContent=d.estimatedRevenue.note;
+  document.getElementById('vidChAvatar').src=d.channel.thumbnail||'';
+  document.getElementById('vidChName').textContent=d.channel.name;
+  document.getElementById('vidChSubs').textContent=d.channel.subscribers;
+  document.getElementById('vidChViews').textContent=d.channel.totalViews;
+  document.getElementById('vidChVids').textContent=d.channel.videoCount;
+  document.getElementById('vidDesc').textContent=d.description||'No description.';
+  if(d.tags.length){document.getElementById('vidTagsSection').style.display='block';document.getElementById('vidTagCount').textContent=d.tags.length;document.getElementById('vidTags').innerHTML=d.tags.map(function(t){return'<span class="tag-pill">'+esc(t)+'</span>'}).join('')}else{document.getElementById('vidTagsSection').style.display='none'}
+  if(d.topComments.length){document.getElementById('vidCommentsSection').style.display='block';document.getElementById('vidCommentsList').innerHTML=d.topComments.map(function(c){return'<div class="comment"><div class="comment-header"><span class="comment-author">'+esc(c.author)+'</span><span class="comment-likes">'+c.likes+' likes</span></div><div class="comment-text">'+c.text+'</div></div>'}).join('')}else{document.getElementById('vidCommentsSection').style.display='none'}
+  document.getElementById('videoResults').style.display='block';
 }
 
-function setMode(mode) {
-  currentMode = mode;
-  document.getElementById('modeChannel').classList.toggle('active', mode==='channel');
-  document.getElementById('modeVideo').classList.toggle('active', mode==='video');
-  document.getElementById('urlInput').placeholder = mode==='channel'
-    ? 'Paste a YouTube channel URL or @handle...'
-    : 'Paste a YouTube video or Shorts URL...';
-  document.getElementById('channelResults').style.display = 'none';
-  document.getElementById('videoResults').style.display = 'none';
-}
+function toggleDesc(id,btn){var el=document.getElementById(id);el.classList.toggle('expanded');btn.textContent=el.classList.contains('expanded')?'Show less':'Show more'}
 
-async function analyze() {
-  const url = document.getElementById('urlInput').value.trim();
-  if (!url) return;
-  document.getElementById('error').style.display = 'none';
-  document.getElementById('channelResults').style.display = 'none';
-  document.getElementById('videoResults').style.display = 'none';
-  document.getElementById('loading').style.display = 'block';
-  document.getElementById('loadingText').textContent = currentMode==='channel' ? 'Analyzing channel...' : 'Analyzing video...';
-  document.getElementById('analyzeBtn').disabled = true;
+async function exportData(type){if(!currentData)return;if(type==='pdf'){exportPDF();return}try{var res=await fetch('/api/export/'+type,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(currentData)});if(!res.ok)throw new Error('Export failed');var blob=await res.blob(),a=document.createElement('a');a.href=URL.createObjectURL(blob);var ext=type==='excel'?'xlsx':'docx',name=(currentData.mode==='video'?currentData.title:currentData.name).replace(/[^a-z0-9]/gi,'_');a.download=name+'_Report.'+ext;a.click();URL.revokeObjectURL(a.href)}catch(e){alert('Export error: '+e.message)}}
 
-  try {
-    const res = await fetch(`/api/analyze/${currentMode}?url=${encodeURIComponent(url)}`);
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Analysis failed');
-    currentData = data;
-    if (data.mode==='video') renderVideo(data);
-    else renderChannel(data);
-  } catch (e) {
-    document.getElementById('error').textContent = e.message;
-    document.getElementById('error').style.display = 'block';
-  } finally {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('analyzeBtn').disabled = false;
-  }
-}
+function exportPDF(){var d=currentData,w=window.open('','_blank'),isV=d.mode==='video',title=isV?d.title:d.name;var body='<h1>'+esc(title)+'</h1><div class="sub">YouTube '+(isV?'Video':'Channel')+' Report · '+new Date().toLocaleDateString()+'</div>';if(isV){body+='<h2>Video Details</h2><table><tr><td><b>Title</b></td><td>'+esc(d.title)+'</td></tr><tr><td><b>Published</b></td><td>'+new Date(d.publishedAt).toLocaleDateString()+'</td></tr><tr><td><b>Duration</b></td><td>'+d.duration+'</td></tr><tr><td><b>Category</b></td><td>'+d.category+'</td></tr><tr><td><b>Definition</b></td><td>'+d.definition+'</td></tr><tr><td><b>Captions</b></td><td>'+d.caption+'</td></tr><tr><td><b>Language</b></td><td>'+d.defaultLanguage+'</td></tr><tr><td><b>Licensed</b></td><td>'+d.licensedContent+'</td></tr><tr><td><b>Channel</b></td><td>'+esc(d.channel.name)+' ('+d.channel.subscribers+' subs)</td></tr></table><h2>Performance</h2><div class="stats"><div class="stat"><div class="stat-v">'+fmt(d.views)+'</div><div class="stat-l">Views</div></div><div class="stat"><div class="stat-v">'+fmt(d.likes)+'</div><div class="stat-l">Likes</div></div><div class="stat"><div class="stat-v">'+fmt(d.commentCount)+'</div><div class="stat-l">Comments</div></div></div><table><tr><td><b>Like Rate</b></td><td>'+d.likeRate+'</td></tr><tr><td><b>Comment Rate</b></td><td>'+d.commentRate+'</td></tr><tr><td><b>Engagement</b></td><td>'+d.engagementRate+'</td></tr></table><h2>Revenue Estimate</h2><table><tr><td><b>Low</b></td><td>'+d.estimatedRevenue.low+'</td></tr><tr><td><b>High</b></td><td>'+d.estimatedRevenue.high+'</td></tr><tr><td><b>RPM</b></td><td>$'+d.estimatedRevenue.rpmLow+'-$'+d.estimatedRevenue.rpmHigh+'</td></tr><tr><td><b>Niche</b></td><td>'+d.estimatedRevenue.niche+'</td></tr></table>';if(d.tags.length)body+='<h2>Tags ('+d.tags.length+')</h2><p>'+d.tags.map(esc).join(', ')+'</p>';if(d.description)body+='<h2>Description</h2><pre style="white-space:pre-wrap;font-family:inherit;font-size:12px;color:#555">'+esc(d.description)+'</pre>'}else{body+='<h2>Channel Statistics</h2><div class="stats"><div class="stat"><div class="stat-v">'+d.subscribersFormatted+'</div><div class="stat-l">Subscribers</div></div><div class="stat"><div class="stat-v">'+d.totalViewsFormatted+'</div><div class="stat-l">Total Views</div></div><div class="stat"><div class="stat-v">'+d.videoCount+'</div><div class="stat-l">Videos</div></div></div><table><tr><td><b>Country</b></td><td>'+d.country+'</td></tr><tr><td><b>Created</b></td><td>'+new Date(d.createdAt).toLocaleDateString()+'</td></tr><tr><td><b>Category</b></td><td>'+d.primaryCategory+'</td></tr><tr><td><b>Frequency</b></td><td>'+d.uploadFrequency+'</td></tr><tr><td><b>Avg Views</b></td><td>'+d.avgViews.toLocaleString()+'</td></tr><tr><td><b>Avg Likes</b></td><td>'+d.avgLikes.toLocaleString()+'</td></tr><tr><td><b>Avg Comments</b></td><td>'+d.avgComments.toLocaleString()+'</td></tr></table><h2>Revenue Estimate (Lifetime)</h2><table><tr><td><b>Low</b></td><td>'+d.estimatedRevenueTotal.low+'</td></tr><tr><td><b>High</b></td><td>'+d.estimatedRevenueTotal.high+'</td></tr><tr><td><b>RPM</b></td><td>$'+d.estimatedRevenueTotal.rpmLow+'-$'+d.estimatedRevenueTotal.rpmHigh+'</td></tr><tr><td><b>Niche</b></td><td>'+d.estimatedRevenueTotal.niche+'</td></tr></table><h2>Recent Videos</h2><table><thead><tr><th>Title</th><th>Date</th><th>Category</th><th>Views</th><th>Likes</th><th>Eng.</th><th>Dur.</th></tr></thead><tbody>'+d.recentVideos.map(function(v){return'<tr><td>'+esc(v.title)+'</td><td>'+new Date(v.publishedAt).toLocaleDateString()+'</td><td>'+v.category+'</td><td>'+v.views.toLocaleString()+'</td><td>'+v.likes.toLocaleString()+'</td><td>'+v.engagementRate+'</td><td>'+v.duration+'</td></tr>'}).join('')+'</tbody></table>'}
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+esc(title)+' Report</title><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:780px;margin:40px auto;padding:0 28px;color:#1a1a2e;line-height:1.6;font-size:13px}h1{font-size:26px;margin-bottom:2px}.sub{color:#666;font-size:12px;margin-bottom:24px}h2{font-size:15px;border-bottom:2px solid #6c63ff;padding-bottom:4px;margin:20px 0 10px;color:#6c63ff}table{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:12px}th{background:#1a1a2e;color:#fff;padding:6px 10px;text-align:left}td{padding:6px 10px;border-bottom:1px solid #eee}tr:nth-child(even) td{background:#f8f8fc}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}.stat{background:#f8f8fc;border-radius:8px;padding:12px;text-align:center}.stat-v{font-size:22px;font-weight:bold;color:#6c63ff}.stat-l{font-size:10px;color:#666}.footer{margin-top:32px;text-align:center;color:#999;font-size:10px;border-top:1px solid #eee;padding-top:12px}@media print{button{display:none}}</style></head><body>'+body+'<div class="footer">Generated by YT Research</div><br><button onclick="window.print()" style="padding:6px 16px;cursor:pointer;font-size:12px">Print / Save as PDF</button></body></html>');w.document.close()}
 
-function renderChannel(d) {
-  document.getElementById('chAvatar').src = d.thumbnail||'';
-  document.getElementById('chName').textContent = d.name;
-  document.getElementById('chHandle').textContent = d.handle ? d.handle : d.country;
-  document.getElementById('chTopics').innerHTML = d.topics.slice(0,5).map(t=>`<span class="tag">${t}</span>`).join('');
-  document.getElementById('chSubs').textContent = d.hiddenSubscribers ? 'Hidden' : fmt(d.subscribers);
-  document.getElementById('chCountry').textContent = d.country;
-  document.getElementById('chViews').textContent = fmt(d.totalViews);
-  document.getElementById('chVidCount').textContent = d.videoCount.toLocaleString();
-  document.getElementById('chFreq').textContent = d.uploadFrequency;
-  document.getElementById('chAvgViews').textContent = fmt(d.avgViews);
-  document.getElementById('chAvgLikes').textContent = fmt(d.avgLikes);
-  document.getElementById('chAvgComments').textContent = fmt(d.avgComments);
-  document.getElementById('chRevLow').textContent = d.estimatedRevenueTotal.low;
-  document.getElementById('chRevHigh').textContent = d.estimatedRevenueTotal.high;
-  document.getElementById('chDesc').textContent = d.description || 'No description.';
-  document.getElementById('chVideosList').innerHTML = d.recentVideos.map(v=>`
-    <tr>
-      <td><div class="video-title-cell">
-        ${v.thumbnail?`<img class="video-thumb" src="${v.thumbnail}" loading="lazy" alt="">`:''}
-        <a href="${v.url}" target="_blank" class="video-link video-title-text" title="${v.title}">${v.title}</a>
-      </div></td>
-      <td>${new Date(v.publishedAt).toLocaleDateString()}</td>
-      <td class="num">${fmt(v.views)}</td>
-      <td class="num">${fmt(v.likes)}</td>
-      <td class="num">${fmt(v.comments)}</td>
-      <td>${v.duration}</td>
-    </tr>`).join('');
-  document.getElementById('channelResults').style.display = 'block';
-}
-
-function renderVideo(d) {
-  document.getElementById('vidThumb').src = d.thumbnail||'';
-  document.getElementById('vidTitle').textContent = d.title;
-  document.getElementById('vidChannel').textContent = d.channel.name;
-  document.getElementById('vidDate').textContent = new Date(d.publishedAt).toLocaleDateString();
-  document.getElementById('vidDuration').textContent = d.duration;
-  document.getElementById('vidViews').textContent = fmt(d.views);
-  document.getElementById('vidLikes').textContent = fmt(d.likes);
-  document.getElementById('vidComments').textContent = fmt(d.commentCount);
-  document.getElementById('vidLikeRate').textContent = d.likeRate;
-  document.getElementById('vidCommentRate').textContent = d.commentRate;
-  document.getElementById('vidEngagement').textContent = d.engagementRate;
-  document.getElementById('vidRevLow').textContent = d.estimatedRevenue.low;
-  document.getElementById('vidRevHigh').textContent = d.estimatedRevenue.high;
-  document.getElementById('vidChAvatar').src = d.channel.thumbnail||'';
-  document.getElementById('vidChName').textContent = d.channel.name;
-  document.getElementById('vidChSubs').textContent = d.channel.subscribers;
-  document.getElementById('vidChViews').textContent = d.channel.totalViews;
-  document.getElementById('vidDesc').textContent = d.description || 'No description.';
-
-  if (d.tags.length) {
-    document.getElementById('vidTagsSection').style.display = 'block';
-    document.getElementById('vidTags').innerHTML = d.tags.slice(0,20).map(t=>`<span class="tag-pill">${t}</span>`).join('');
-  } else {
-    document.getElementById('vidTagsSection').style.display = 'none';
-  }
-
-  if (d.topComments.length) {
-    document.getElementById('vidCommentsSection').style.display = 'block';
-    document.getElementById('vidCommentsList').innerHTML = d.topComments.map(c=>`
-      <div class="comment">
-        <div class="comment-header">
-          <span class="comment-author">${c.author}</span>
-          <span class="comment-likes">${c.likes} likes</span>
-        </div>
-        <div class="comment-text">${c.text}</div>
-      </div>`).join('');
-  } else {
-    document.getElementById('vidCommentsSection').style.display = 'none';
-  }
-  document.getElementById('videoResults').style.display = 'block';
-}
-
-function toggleDesc(id, btn) {
-  const el = document.getElementById(id);
-  el.classList.toggle('expanded');
-  btn.textContent = el.classList.contains('expanded') ? 'Show less' : 'Show more';
-}
-
-async function exportData(type) {
-  if (!currentData) return;
-  if (type==='pdf') { exportPDF(); return; }
-  try {
-    const res = await fetch(`/api/export/${type}`,{
-      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(currentData)
-    });
-    if (!res.ok) throw new Error('Export failed');
-    const blob = await res.blob();
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    const ext = type==='excel'?'xlsx':'docx';
-    const name = (currentData.mode==='video'?currentData.title:currentData.name).replace(/[^a-z0-9]/gi,'_');
-    a.download = `${name}_Report.${ext}`;
-    a.click(); URL.revokeObjectURL(a.href);
-  } catch(e) { alert('Export error: '+e.message); }
-}
-
-function exportPDF() {
-  const d = currentData;
-  const w = window.open('','_blank');
-  const isVideo = d.mode==='video';
-  const title = isVideo ? d.title : d.name;
-
-  let body = `
-    <h1>${title}</h1>
-    <div class="sub">YouTube ${isVideo?'Video':'Channel'} Research Report · ${new Date().toLocaleDateString()}</div>`;
-
-  if (isVideo) {
-    body += `
-    <h2>Video Details</h2>
-    <table><tr><td><b>Title</b></td><td>${d.title}</td></tr>
-    <tr><td><b>Published</b></td><td>${new Date(d.publishedAt).toLocaleDateString()}</td></tr>
-    <tr><td><b>Duration</b></td><td>${d.duration}</td></tr>
-    <tr><td><b>Channel</b></td><td>${d.channel.name} (${d.channel.subscribers} subs)</td></tr></table>
-    <h2>Performance</h2>
-    <div class="stats">
-      <div class="stat"><div class="stat-v">${fmt(d.views)}</div><div class="stat-l">Views</div></div>
-      <div class="stat"><div class="stat-v">${fmt(d.likes)}</div><div class="stat-l">Likes</div></div>
-      <div class="stat"><div class="stat-v">${fmt(d.commentCount)}</div><div class="stat-l">Comments</div></div>
-    </div>
-    <table><tr><td><b>Like Rate</b></td><td>${d.likeRate}</td></tr>
-    <tr><td><b>Comment Rate</b></td><td>${d.commentRate}</td></tr>
-    <tr><td><b>Engagement Rate</b></td><td>${d.engagementRate}</td></tr></table>
-    <h2>Est. Revenue</h2>
-    <table><tr><td><b>Low</b></td><td>${d.estimatedRevenue.low}</td></tr>
-    <tr><td><b>High</b></td><td>${d.estimatedRevenue.high}</td></tr></table>`;
-    if (d.tags.length) body += `<h2>Tags</h2><p>${d.tags.join(', ')}</p>`;
-  } else {
-    body += `
-    <h2>Channel Statistics</h2>
-    <div class="stats">
-      <div class="stat"><div class="stat-v">${d.subscribersFormatted}</div><div class="stat-l">Subscribers</div></div>
-      <div class="stat"><div class="stat-v">${d.totalViewsFormatted}</div><div class="stat-l">Total Views</div></div>
-      <div class="stat"><div class="stat-v">${d.videoCount}</div><div class="stat-l">Videos</div></div>
-    </div>
-    <table><tr><td><b>Country</b></td><td>${d.country}</td></tr>
-    <tr><td><b>Created</b></td><td>${new Date(d.createdAt).toLocaleDateString()}</td></tr>
-    <tr><td><b>Frequency</b></td><td>${d.uploadFrequency}</td></tr>
-    <tr><td><b>Avg Views</b></td><td>${d.avgViews.toLocaleString()}</td></tr>
-    <tr><td><b>Avg Likes</b></td><td>${d.avgLikes.toLocaleString()}</td></tr>
-    <tr><td><b>Avg Comments</b></td><td>${d.avgComments.toLocaleString()}</td></tr></table>
-    <h2>Est. Revenue (Lifetime)</h2>
-    <table><tr><td><b>Low</b></td><td>${d.estimatedRevenueTotal.low}</td></tr>
-    <tr><td><b>High</b></td><td>${d.estimatedRevenueTotal.high}</td></tr></table>
-    <h2>Recent Videos</h2>
-    <table><thead><tr><th>Title</th><th>Date</th><th>Views</th><th>Likes</th><th>Duration</th></tr></thead>
-    <tbody>${d.recentVideos.map(v=>`<tr><td>${v.title}</td><td>${new Date(v.publishedAt).toLocaleDateString()}</td>
-    <td>${v.views.toLocaleString()}</td><td>${v.likes.toLocaleString()}</td><td>${v.duration}</td></tr>`).join('')}</tbody></table>`;
-  }
-
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${title} — Report</title>
-  <style>
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:780px;margin:40px auto;padding:0 28px;color:#1a1a2e;line-height:1.6;font-size:14px}
-    h1{font-size:28px;margin-bottom:2px} .sub{color:#666;font-size:13px;margin-bottom:28px}
-    h2{font-size:16px;border-bottom:2px solid #6c63ff;padding-bottom:5px;margin:24px 0 12px;color:#6c63ff}
-    table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:13px}
-    th{background:#1a1a2e;color:#fff;padding:7px 10px;text-align:left} td{padding:7px 10px;border-bottom:1px solid #eee}
-    tr:nth-child(even) td{background:#f8f8fc}
-    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
-    .stat{background:#f8f8fc;border-radius:8px;padding:14px;text-align:center}
-    .stat-v{font-size:24px;font-weight:bold;color:#6c63ff} .stat-l{font-size:11px;color:#666}
-    .footer{margin-top:36px;text-align:center;color:#999;font-size:11px;border-top:1px solid #eee;padding-top:14px}
-    @media print{button{display:none}}
-  </style></head><body>${body}
-  <div class="footer">Generated by YT Research</div>
-  <br><button onclick="window.print()" style="padding:8px 20px;cursor:pointer">Print / Save as PDF</button>
-  </body></html>`);
-  w.document.close();
-}
-
-document.getElementById('urlInput').addEventListener('keydown', e => { if (e.key==='Enter') analyze(); });
+document.getElementById('urlInput').addEventListener('keydown',function(e){if(e.key==='Enter')analyze()});
 </script>
-</body>
-</html>
+</body></html>
